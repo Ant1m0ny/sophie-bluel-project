@@ -5,6 +5,8 @@ let selectedCategories = [{
     name: "Tous"
 }];
 
+let validTitle = false;
+let validImage = false;
 
 
 /**
@@ -128,19 +130,18 @@ function editmodalHandler() {
     const modal = document.getElementById("modal-edit");
 
     // Get the button that opens the modal
-    const btn = document.querySelector(".edit");
-
+    const btns = document.querySelectorAll(".edit");
     // Get the <span> element that closes the modal
     const span = document.getElementsByClassName("close-edit")[0];
 
     // When the user clicks on the button, open the modal
-    btn.onclick = function () {
+    btns.forEach(btn => btn.onclick = function () {
         modal.style.display = "block";
         displayWorksInModal();
         handleDeleteWork();
         handleAddPicture();
 
-    }
+    })
 
     // When the user clicks on <span> (x), close the modal
     span.onclick = function () {
@@ -156,12 +157,45 @@ function editmodalHandler() {
     }
 }
 
+
+function testBtnValid() {
+    const addModal = document.getElementById("modal-add");
+    const kbButtons = addModal.querySelector(".btn");
+    console.log(kbButtons);
+    if (validImage && validTitle) kbButtons.style["background-color"] = "#1D6154";
+    else kbButtons.style["background-color"] = "#A7A7A7";
+}
+
+function buttonValidateEnableChecker() {
+
+    const title = document.querySelector('input[name="title"]');
+    const image = document.querySelector('input[name="image"]');
+    image.addEventListener("change", (e) => {
+        if (image.files.length) validImage = true;
+        else validImage = false;
+        testBtnValid();
+
+    })
+    title.addEventListener('input', (e) => {
+        if (e.target.value != "") validTitle = true;
+        else validTitle = false;
+        testBtnValid();
+
+
+    })
+
+
+
+
+
+
+}
+
 function addModalHandler() {
     // Get the modal
     const modal = document.getElementById("modal-add");
 
     // Get the button that opens the modal
-
 
     // Get the <span> element that closes the modal
     const span = document.getElementsByClassName("close-add")[0];
@@ -185,12 +219,15 @@ function handleAddWorkForm() {
         e.preventDefault();
 
         const title = document.querySelector('input[name="title"]').value;
-        const category = document.querySelector('input[name="category"]').value;
+        const category = document.querySelector('select[name="category"]').value;
         const image = document.querySelector('input[name="image"]');
+
         const formData = new FormData();
         formData.append("title", title);
         formData.append("category", category);
         formData.append("image", image.files[0]);
+
+        console.log(formData);
 
         const userToken = JSON.parse(localStorage.getItem("user_login"));
 
@@ -257,11 +294,30 @@ function filterWorks() {
 
 }
 
+function cleanUI() {
+    const userToken = localStorage.getItem("user_login");
+    const topBar = document.querySelector(".top-bar-edit");
+    const header = document.querySelector(".edit-mode");
+    const editBtnBody = document.querySelector("#edit-body");
+    if (userToken === null || userToken === undefined) {
+
+        topBar.style.display = "none";
+        header.className = "";
+        editBtnBody.style.display = "none";
+
+    } else {
+        topBar.style.display = "flex";
+        header.className = "edit-mode";
+        editBtnBody.style.display = "block";
+    }
+}
 
 document.addEventListener('DOMContentLoaded', async () => {
+    cleanUI();
     await fetchCategories();
     await fetchWorks();
     editmodalHandler();
     addModalHandler();
+    buttonValidateEnableChecker();
     handleAddWorkForm();
 })
