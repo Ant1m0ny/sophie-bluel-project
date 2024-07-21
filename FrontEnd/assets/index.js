@@ -1,13 +1,16 @@
 let stateWorks = [];
 let stateCategories = [];
-let selectedCategories = [{id:-1,name:"Tous"}];
+let selectedCategories = [{
+    id: -1,
+    name: "Tous"
+}];
 
 
 
 /**
  * display list of  filtered works by category
  */
-function displayWorks(){
+function displayWorks() {
 
     const gallery = document.querySelector('.gallery');
     gallery.innerHTML = "";
@@ -17,15 +20,15 @@ function displayWorks(){
     // TODO : fix that
     let myArrayFiltered = stateWorks.filter((work) => {
         return selectedCategories.some((cat) => {
-          return cat.id === work.category.id
+            return cat.id === work.category.id
         });
-      });
-      if(selectedCategories.length === 1 && selectedCategories.find(cat=>cat.id===-1)) { // activer seuelemnt si le tag Tous est selectionner
-       myArrayFiltered = stateWorks;
+    });
+    if (selectedCategories.length === 1 && selectedCategories.find(cat => cat.id === -1)) { // activer seuelemnt si le tag Tous est selectionner
+        myArrayFiltered = stateWorks;
     };
 
 
-      myArrayFiltered.forEach(work => {
+    myArrayFiltered.forEach(work => {
         gallery.innerHTML += `
         <figure>
             <img src="${work.imageUrl}" alt="${work.title}">
@@ -34,82 +37,231 @@ function displayWorks(){
     })
 }
 
+function cleanDisplayWorksInModal() {
+    const gallery = document.querySelector('.modal-gallery-list');
+    gallery.innerHTML = "";
+}
 
+function displayWorksInModal() {
+    const gallery = document.querySelector('.modal-gallery-list');
 
-
-document.addEventListener('DOMContentLoaded', () => {
-    // Tous mon html est chargé donc je peux executer du js sans soucis
-    // Récupérer un élement par son id
-    // const contact = document.getElementById('contact')
-    // const contact = document.querySelector('#contact');
-
-    // Récupérer un élement par class
-    // const gallery = document.getElementsByClassName('gallery');
-    // [...gallery].forEach(element => {console.log(element)});
-
-    // Récupérer une seule classe
-    const categoriesElement = document.querySelector('.categories');
-    // console.log(gallery)
-
-    // const galleries = document.querySelectorAll('.gallery');
-    // galleries.forEach(element => {console.log(element)});
-
-    // asynchrone donc n'attends pas la fin de l'execution pour continuer
-    fetch('http://localhost:5678/api/categories').then(response => {
-        return response.json();
-    }).then(categories=>{
-        stateCategories=categories;
-        stateCategories.forEach(categorie=>{
-            categoriesElement.innerHTML += `<div id=${categorie.id} class="categorie">
-            ${categorie.name}
+    stateWorks.forEach(work => {
+        gallery.innerHTML += `
+        <div class="figure-modal">
+            <span class="delete-work" id="${work.id}">
+              <svg width="17" height="17" viewBox="0 0 17 17" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <rect width="17" height="17" rx="2" fill="black"/>
+                <path d="M6.71607 3.35558C6.82455 3.13661 7.04754 3 7.29063 3H9.70938C9.95246 3 10.1754 3.13661 10.2839 3.35558L10.4286 3.64286H12.3571C12.7127 3.64286 13 3.93013 13 4.28571C13 4.64129 12.7127 4.92857 12.3571 4.92857H4.64286C4.28728 4.92857 4 4.64129 4 4.28571C4 3.93013 4.28728 3.64286 4.64286 3.64286H6.57143L6.71607 3.35558ZM4.64286 5.57143H12.3571V12C12.3571 12.7092 11.7806 13.2857 11.0714 13.2857H5.92857C5.21942 13.2857 4.64286 12.7092 4.64286 12V5.57143ZM6.57143 6.85714C6.39464 6.85714 6.25 7.00179 6.25 7.17857V11.6786C6.25 11.8554 6.39464 12 6.57143 12C6.74821 12 6.89286 11.8554 6.89286 11.6786V7.17857C6.89286 7.00179 6.74821 6.85714 6.57143 6.85714ZM8.5 6.85714C8.32321 6.85714 8.17857 7.00179 8.17857 7.17857V11.6786C8.17857 11.8554 8.32321 12 8.5 12C8.67679 12 8.82143 11.8554 8.82143 11.6786V7.17857C8.82143 7.00179 8.67679 6.85714 8.5 6.85714ZM10.4286 6.85714C10.2518 6.85714 10.1071 7.00179 10.1071 7.17857V11.6786C10.1071 11.8554 10.2518 12 10.4286 12C10.6054 12 10.75 11.8554 10.75 11.6786V7.17857C10.75 7.00179 10.6054 6.85714 10.4286 6.85714Z" fill="white"/>
+                </svg>
+            </span>
+            <img src="${work.imageUrl}" alt="${work.title}">
         </div>`
-        })
-        
-        
-    }).then(()=>{
-        categoriesElements = document.querySelectorAll(".categorie");
-        categoriesElements.forEach(element=>{
-            element.addEventListener('click', (event)=>{
+    })
+}
 
+async function handleDeleteWork() {
+    const deleteWorkBtns = document.querySelectorAll(".delete-work");
+    console.log(deleteWorkBtns);
+    deleteWorkBtns.forEach(btn => {
+        btn.addEventListener("click", (e) => {
+            e.preventDefault();
+            const userToken = JSON.parse(localStorage.getItem("user_login"));
 
-                if(element.className.includes("selected")) {
-                    element.className = "categorie";
-                    selectedCategories = selectedCategories.filter(cat=>cat.id != event.target.id);
-                }
-                else  {
-                    element.className += " selected";
-                    selectedCategories.push({id:Number(event.target.id)});
-                }
-                displayWorks();
-                // console.log(stateCategories);
-                // console.log("j'ai clicker sur la cetegorie ===>",stateCategories.find(cat => cat.id == event.target.id));
+            if (userToken === null || userToken == undefined) return;
+            const options = {
+                method: 'DELETE', // HTTP method
+                headers: {
+                    'Content-Type': 'application/json', // Headers
+                    Authorization: `Bearer ${userToken.token}`
+
+                },
+            };
+
+            fetch(`http://localhost:5678/api/works/${btn.id}`, options).then(async (res) => {
+                console.log(res);
+                console.log("delete successfully!")
+                await fetchWorks();
+
+            }).then(() => {
+                cleanDisplayWorksInModal();
+                displayWorksInModal();
             })
         })
     })
+}
 
-    fetch('http://localhost:5678/api/works').then(response => {
-        return response.json()
-    }).then(works => {
+function addClickEventToCategories() {
+    categoriesElements = document.querySelectorAll(".categorie");
+    categoriesElements.forEach(element => {
+        element.addEventListener('click', (event) => {
 
-        stateWorks = works;
-        displayWorks();
-        // autre manière
-        // gallery.innerHTML = works.map(work => {
-        //     return `
-        //     <figure>
-        //         <img src="${work.imageUrl}" alt="${work.title}">
-        //         <figcaption>${work.title}</figcaption>
-        //     </figure>`
-        // }).join(' ')
 
-    });
+            if (element.className.includes("selected")) {
+                element.className = "categorie";
+                selectedCategories = selectedCategories.filter(cat => cat.id != event.target.id);
+            } else {
+                element.className += " selected";
+                selectedCategories.push({
+                    id: Number(event.target.id)
+                });
+            }
+            displayWorks();
+
+        })
+    })
+}
+
+function handleAddPicture() {
+    const btn = document.getElementById("add-picture-btn");
+
+    btn.addEventListener('click', () => {
+        const editModal = document.getElementById("modal-edit");
+        const addModal = document.getElementById("modal-add");
+        editModal.style.display = "none";
+        cleanDisplayWorksInModal();
+        addModal.style.display = "block";
+    })
+}
+
+function editmodalHandler() {
+    // Get the modal
+    const modal = document.getElementById("modal-edit");
+
+    // Get the button that opens the modal
+    const btn = document.querySelector(".edit");
+
+    // Get the <span> element that closes the modal
+    const span = document.getElementsByClassName("close-edit")[0];
+
+    // When the user clicks on the button, open the modal
+    btn.onclick = function () {
+        modal.style.display = "block";
+        displayWorksInModal();
+        handleDeleteWork();
+        handleAddPicture();
+
+    }
+
+    // When the user clicks on <span> (x), close the modal
+    span.onclick = function () {
+        modal.style.display = "none";
+        cleanDisplayWorksInModal();
+    }
+
+    // When the user clicks anywhere outside of the modal, close it
+    window.onclick = function (event) {
+        if (event.target == modal) {
+            modal.style.display = "none";
+        }
+    }
+}
+
+function addModalHandler() {
+    // Get the modal
+    const modal = document.getElementById("modal-add");
+
+    // Get the button that opens the modal
+
+
+    // Get the <span> element that closes the modal
+    const span = document.getElementsByClassName("close-add")[0];
+
+
+    // When the user clicks on <span> (x), close the modal
+    span.onclick = function () {
+        modal.style.display = "none";
+    }
+
+    // When the user clicks anywhere outside of the modal, close it
+    window.onclick = function (event) {
+        if (event.target == modal) {
+            modal.style.display = "none";
+        }
+    }
+}
+
+function handleAddWorkForm() {
+    document.forms["add_form"].onsubmit = async function (e) {
+        e.preventDefault();
+
+        const title = document.querySelector('input[name="title"]').value;
+        const category = document.querySelector('input[name="category"]').value;
+        const image = document.querySelector('input[name="image"]');
+        const formData = new FormData();
+        formData.append("title", title);
+        formData.append("category", category);
+        formData.append("image", image.files[0]);
+
+        const userToken = JSON.parse(localStorage.getItem("user_login"));
+
+        if (userToken === null || userToken == undefined) return;
+
+        console.log("options", {
+            method: "POST",
+            body: formData,
+            headers: {
+                Authorization: `Bearer ${userToken.token}`,
+                'content-type': 'multipart/form-data'
+            }
+        })
+        const response = await fetch("http://localhost:5678/api/works", {
+            method: "POST",
+            body: formData,
+            headers: {
+                Authorization: `Bearer ${userToken.token}`
+            }
+        });
+
+
+        console.log(response);
+
+    }
+}
+
+function displayEditBtn() {}
+async function fetchWorks() {
+    const response = await fetch('http://localhost:5678/api/works');
+    const works = await response.json();
+    stateWorks = works;
+    displayWorks();
+}
+
+function displayCategories() {
+    const userToken = localStorage.getItem("user_login");
+
+    if (userToken != null && userToken != undefined) return;
+
+    const categoriesElement = document.querySelector('.categories');
+    stateCategories.forEach(categorie => {
+        categoriesElement.innerHTML += `<div id=${categorie.id} class="categorie">
+        ${categorie.name}
+    </div>`
+    })
+
+}
+
+
+async function fetchCategories() {
+    const response = await fetch('http://localhost:5678/api/categories');
+    const categories = await response.json();
+    stateCategories = [{
+        name: "Tous",
+        id: -1
+    }, ...categories];
+    displayCategories();
+    addClickEventToCategories();
+
+}
+
+function filterWorks() {
+
+}
+
+
+document.addEventListener('DOMContentLoaded', async () => {
+    await fetchCategories();
+    await fetchWorks();
+    editmodalHandler();
+    addModalHandler();
+    handleAddWorkForm();
 })
-
-
-
-// chargé mon fichier js
-// m'assurer que mon fichier et chargé
-// récupérer le container des élements
-// récupérer la data
-// insérer la data dans le html
-
