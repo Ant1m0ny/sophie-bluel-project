@@ -478,6 +478,15 @@ footer nav ul {
 	height: 104.08px;
 }
 
+.input-section-image-preview {
+	display: none;
+}
+
+.input-section-image-preview img {
+	width: 120px;
+	height: 168px;
+}
+
 .figure-modal span {
 	cursor: pointer;
 	position: absolute;
@@ -548,6 +557,18 @@ label {
 
 }
 
+.input-section-image-input {
+	background-color: #E8F1F6;
+	width: 420px;
+	height: 169px;
+	display: flex;
+	gap: 0.5rem;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	border-radius: 3px;
+}
+
 .input-section-image {
 	background-color: #E8F1F6;
 	width: 420px;
@@ -591,4 +612,20 @@ input[type="file"] {
 
 .edit-mode {
 	margin-top: 100px;
+}
+
+.back-arraw {
+	color: #aaa;
+	float: right;
+	font-size: 28px;
+	font-weight: bold;
+	margin: 25px;
+	cursor: pointer;
+}
+
+.command {
+	display: flex;
+	justify-content: space-between;
+	flex-direction: row-reverse;
+
 }

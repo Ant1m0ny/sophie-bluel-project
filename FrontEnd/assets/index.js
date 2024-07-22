@@ -8,7 +8,6 @@ let selectedCategories = [{
 let validTitle = false;
 let validImage = false;
 
-
 /**
  * display list of  filtered works by category
  */
@@ -18,8 +17,6 @@ function displayWorks() {
     gallery.innerHTML = "";
 
 
-
-    // TODO : fix that
     let myArrayFiltered = stateWorks.filter((work) => {
         return selectedCategories.some((cat) => {
             return cat.id === work.category.id
@@ -106,6 +103,17 @@ function addClickEventToCategories() {
                 selectedCategories.push({
                     id: Number(event.target.id)
                 });
+            }
+            if (event.target.id != -1 && selectedCategories.length > 1) {
+                categoriesElements[0].className = "categorie";
+                selectedCategories = selectedCategories.filter(cat => cat.id != -1);
+            }
+            if (selectedCategories.length === 0) {
+                categoriesElements[0].className = "categorie selected";
+                selectedCategories.push({
+                    id: -1,
+                    name: "Tous"
+                })
             }
             displayWorks();
 
@@ -199,11 +207,16 @@ function addModalHandler() {
 
     // Get the <span> element that closes the modal
     const span = document.getElementsByClassName("close-add")[0];
+    const myImagePreview = document.querySelector(".input-section-image-preview");
+    const myImageInput = document.querySelector(".input-section-image-input");
+
 
 
     // When the user clicks on <span> (x), close the modal
     span.onclick = function () {
         modal.style.display = "none";
+        myImagePreview.style.display = "none";
+        myImageInput.style.display = "flex";
     }
 
     // When the user clicks anywhere outside of the modal, close it
@@ -269,8 +282,10 @@ function displayCategories() {
     if (userToken != null && userToken != undefined) return;
 
     const categoriesElement = document.querySelector('.categories');
-    stateCategories.forEach(categorie => {
-        categoriesElement.innerHTML += `<div id=${categorie.id} class="categorie">
+    stateCategories.forEach((categorie, index) => {
+        let className = "categorie";
+        if (index === 0) className = className + " " + "selected";
+        categoriesElement.innerHTML += `<div id=${categorie.id} class="${className}">
         ${categorie.name}
     </div>`
     })
@@ -312,6 +327,40 @@ function cleanUI() {
     }
 }
 
+function handleImagePreview() {
+
+    const image = document.querySelector('input[name="image"]');
+    image.addEventListener("change", (e) => {
+
+        const [file] = image.files
+        if (file) {
+            const myImagePreview = document.querySelector(".input-section-image-preview");
+            const myImageInput = document.querySelector(".input-section-image-input");
+            myImagePreview.style.display = "block";
+            myImageInput.style.display = "none";
+            const imgTag = myImagePreview.querySelector("img");
+            imgTag.src = URL.createObjectURL(file);
+
+        }
+
+
+
+    })
+
+}
+
+function handleBackArrow() {
+    const backArrow = document.querySelector(".back-arraw");
+    backArrow.addEventListener("click", () => {
+        const editModal = document.getElementById("modal-edit");
+        const addModal = document.getElementById("modal-add");
+        editModal.style.display = "block";
+        addModal.style.display = "none";
+        displayWorksInModal();
+    })
+
+}
+
 document.addEventListener('DOMContentLoaded', async () => {
     cleanUI();
     await fetchCategories();
@@ -320,4 +369,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     addModalHandler();
     buttonValidateEnableChecker();
     handleAddWorkForm();
+    handleImagePreview();
+    handleBackArrow();
 })
