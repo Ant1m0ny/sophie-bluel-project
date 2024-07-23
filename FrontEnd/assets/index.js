@@ -350,7 +350,7 @@ function handleImagePreview() {
 }
 
 function handleBackArrow() {
-    const backArrow = document.querySelector(".back-arraw");
+    const backArrow = document.querySelector(".back-arrow");
     backArrow.addEventListener("click", () => {
         const editModal = document.getElementById("modal-edit");
         const addModal = document.getElementById("modal-add");

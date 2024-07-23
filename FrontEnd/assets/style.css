@@ -468,10 +468,6 @@ footer nav ul {
 
 }
 
-.figure-modal {
-	/* width: 76.86px; */
-	/* height: 102.57px; */
-}
 
 .figure-modal img {
 	width: 78.12px;
@@ -614,7 +610,7 @@ input[type="file"] {
 	margin-top: 100px;
 }
 
-.back-arraw {
+.back-arrow {
 	color: #aaa;
 	float: right;
 	font-size: 28px;
