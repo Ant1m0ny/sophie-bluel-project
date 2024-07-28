@@ -60,11 +60,12 @@ function displayWorksInModal() {
 
 async function handleDeleteWork() {
     const deleteWorkBtns = document.querySelectorAll(".delete-work");
-    console.log(deleteWorkBtns);
     deleteWorkBtns.forEach(btn => {
         btn.addEventListener("click", (e) => {
+            console.log("test")
             e.preventDefault();
             const userToken = JSON.parse(localStorage.getItem("user_login"));
+            console.log(userToken)
 
             if (userToken === null || userToken == undefined) return;
             const options = {
@@ -122,9 +123,11 @@ function addClickEventToCategories() {
 }
 
 function handleAddPicture() {
+
     const btn = document.getElementById("add-picture-btn");
 
     btn.addEventListener('click', () => {
+        console.log("we clicked add picture")
         const editModal = document.getElementById("modal-edit");
         const addModal = document.getElementById("modal-add");
         editModal.style.display = "none";
@@ -191,10 +194,6 @@ function buttonValidateEnableChecker() {
 
 
     })
-
-
-
-
 
 
 }
@@ -269,6 +268,7 @@ function handleAddWorkForm() {
 }
 
 function displayEditBtn() {}
+
 async function fetchWorks() {
     const response = await fetch('http://localhost:5678/api/works');
     const works = await response.json();
@@ -361,6 +361,52 @@ function handleBackArrow() {
 
 }
 
+let isLogged = false
+
+function handleLogin() {
+    const loginBtn = document.querySelector("#loginButton")
+    loginBtn.addEventListener("click", () => {
+        if (isLogged) {
+            localStorage.removeItem("user_login")
+            isLogged = false
+            
+            handleLoginText()
+            cleanUI();
+            fetchCategories();
+            fetchWorks();
+            editmodalHandler();
+            addModalHandler();
+            buttonValidateEnableChecker();
+            handleAddWorkForm();
+            handleImagePreview();
+            handleBackArrow();
+            handleLogin();
+        }
+        else {
+            window.location.href = "login.html"
+            isLogged = true
+            handleLoginText()
+            cleanUI();
+            fetchCategories();
+            fetchWorks();
+            editmodalHandler();
+            addModalHandler();
+            buttonValidateEnableChecker();
+            handleAddWorkForm();
+            handleImagePreview();
+            handleBackArrow();
+            handleLogin();
+        }
+    })
+}
+
+function handleLoginText() {
+    const loginBtn = document.querySelector("#loginButton")
+    loginBtn.innerHTML = isLogged ? "Logout" : "Login"
+}
+
+
+
 document.addEventListener('DOMContentLoaded', async () => {
     cleanUI();
     await fetchCategories();
@@ -371,4 +417,5 @@ document.addEventListener('DOMContentLoaded', async () => {
     handleAddWorkForm();
     handleImagePreview();
     handleBackArrow();
+    handleLogin();
 })

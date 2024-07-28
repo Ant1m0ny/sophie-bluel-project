@@ -7,12 +7,14 @@ module.exports = (req, res, next) => {
 		const decodedToken = jwt.verify(token, process.env.TOKEN_SECRET)
 		const userId = decodedToken.userId
 		req.auth = { userId }
+		console.log("we get here")
 		if (req.body.userId && req.body.userId !== userId) {
 			throw 'Invalid user ID'
 		} else {
 			next()
 		}
-	} catch {
+	} catch(e) {
+		console.log(e)
 		res.status(401).json({
 			error: new Error('You are not authenticated')
 		})
