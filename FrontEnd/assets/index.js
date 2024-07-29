@@ -369,20 +369,13 @@ function handleLogin() {
         if (isLogged) {
             localStorage.removeItem("user_login")
             isLogged = false
-            
+
             handleLoginText()
             cleanUI();
             fetchCategories();
             fetchWorks();
-            editmodalHandler();
-            addModalHandler();
-            buttonValidateEnableChecker();
-            handleAddWorkForm();
-            handleImagePreview();
-            handleBackArrow();
-            handleLogin();
-        }
-        else {
+
+        } else {
             window.location.href = "login.html"
             isLogged = true
             handleLoginText()
@@ -402,9 +395,13 @@ function handleLogin() {
 
 function handleLoginText() {
     const loginBtn = document.querySelector("#loginButton")
-    loginBtn.innerHTML = isLogged ? "Logout" : "Login"
+    loginBtn.innerHTML = isLogged ? "logout" : "login"
 }
 
+function handleIsLogged() {
+    const token = localStorage.getItem("user_login")
+    isLogged = token ? true : false
+}
 
 
 document.addEventListener('DOMContentLoaded', async () => {
@@ -417,5 +414,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     handleAddWorkForm();
     handleImagePreview();
     handleBackArrow();
+    handleIsLogged();
+    handleLoginText();
     handleLogin();
 })

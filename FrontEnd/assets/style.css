@@ -455,7 +455,6 @@ footer nav ul {
 .modal-gallery-list {
 	overflow: auto;
 	height: 350px;
-	/* grid-template-columns: 20% 20% 20% 20% 20%; */
 	display: grid;
 
 	grid-template-columns: repeat(5, 1fr);
@@ -495,8 +494,6 @@ footer nav ul {
 
 .modal-content .add-form {
 	margin: 100px;
-	background-color: red;
-
 
 }
 
@@ -624,4 +621,8 @@ input[type="file"] {
 	justify-content: space-between;
 	flex-direction: row-reverse;
 
+}
+
+#loginButton {
+	cursor: pointer;
 }
