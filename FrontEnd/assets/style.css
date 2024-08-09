@@ -438,9 +438,7 @@ footer nav ul {
 }
 
 .btn.gray {
-
 	background-color: #A7A7A7;
-
 }
 
 .modal-gallery-list {
@@ -458,6 +456,9 @@ footer nav ul {
 
 }
 
+.figure-modal {
+	position: relative;
+}
 
 .figure-modal img {
 	width: 78.12px;
@@ -473,13 +474,13 @@ footer nav ul {
 	height: 168px;
 }
 
-.figure-modal span {
+.delete-work {
 	cursor: pointer;
 	position: absolute;
 	margin-left: 58px;
 	margin-top: 5px;
 	border-radius: 2px;
-
+	z-index: 1;
 }
 
 
@@ -616,4 +617,8 @@ input[type="file"] {
 
 #loginButton {
 	cursor: pointer;
+}
+
+.errors-messages {
+	color: red;
 }

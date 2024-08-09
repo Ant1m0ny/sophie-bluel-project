@@ -1,7 +1,7 @@
 // const seConnecterBtn = document.addEventListener("submit")
 document.addEventListener('DOMContentLoaded', () => {
     const session = localStorage.getItem("user_login");
-    if (session != null && session != undefined) window.location.replace("http://localhost:5500/FrontEnd/");
+    if (session != null && session != undefined) window.location.replace("http://localhost:5500/");
 });
 
 
@@ -27,7 +27,7 @@ document.forms["login_form"].onsubmit = async function (e) {
         errorMessage(false);
         const responseData = await response.json();
         localStorage.setItem("user_login", JSON.stringify(responseData));
-        window.location.replace("http://localhost:5500/FrontEnd/");
+        window.location.replace("http://localhost:5500/");
     } else {
         errorMessage(true);
     }

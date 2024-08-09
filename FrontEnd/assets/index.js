@@ -58,69 +58,65 @@ function displayWorksInModal() {
     })
 }
 
+
 async function handleDeleteWork() {
     const deleteWorkBtns = document.querySelectorAll(".delete-work");
     deleteWorkBtns.forEach(btn => {
-        btn.addEventListener("click", (e) => {
-            console.log("test")
-            e.preventDefault();
-            const userToken = JSON.parse(localStorage.getItem("user_login"));
-            console.log(userToken)
+        btn.addEventListener("click", handleDeleteWorkClick);
+    });
+}
 
-            if (userToken === null || userToken == undefined) return;
-            const options = {
-                method: 'DELETE', // HTTP method
-                headers: {
-                    'Content-Type': 'application/json', // Headers
-                    Authorization: `Bearer ${userToken.token}`
+async function handleDeleteWorkClick(e) {
+    e.preventDefault();
+    const userToken = JSON.parse(localStorage.getItem("user_login"));
 
-                },
-            };
+    if (!userToken) return;
 
-            fetch(`http://localhost:5678/api/works/${btn.id}`, options).then(async (res) => {
-                console.log(res);
-                console.log("delete successfully!")
-                await fetchWorks();
+    const options = {
+        method: 'DELETE',
+        headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${userToken.token}`
+        },
+    };
 
-            }).then(() => {
-                cleanDisplayWorksInModal();
-                displayWorksInModal();
-            })
-        })
-    })
+    try {
+        const res = await fetch(`http://localhost:5678/api/works/${e.currentTarget.id}`, options);
+        console.log(res);
+        console.log("delete successfully!");
+        await fetchWorks();
+        cleanDisplayWorksInModal();
+        displayWorksInModal();
+        handleDeleteWork();
+    } catch (error) {
+        console.error("Error deleting work:", error);
+    }
 }
 
 function addClickEventToCategories() {
     categoriesElements = document.querySelectorAll(".categorie");
     categoriesElements.forEach(element => {
         element.addEventListener('click', (event) => {
+            refreshBtnsCategories(categoriesElements, element);
 
+            selectedCategories = stateCategories.filter((categorie) => {
+                return categorie.id === parseInt(element.id);
+            });
 
-            if (element.className.includes("selected")) {
-                element.className = "categorie";
-                selectedCategories = selectedCategories.filter(cat => cat.id != event.target.id);
-            } else {
-                element.className += " selected";
-                selectedCategories.push({
-                    id: Number(event.target.id)
-                });
-            }
-            if (event.target.id != -1 && selectedCategories.length > 1) {
-                categoriesElements[0].className = "categorie";
-                selectedCategories = selectedCategories.filter(cat => cat.id != -1);
-            }
-            if (selectedCategories.length === 0) {
-                categoriesElements[0].className = "categorie selected";
-                selectedCategories.push({
-                    id: -1,
-                    name: "Tous"
-                })
-            }
             displayWorks();
 
         })
     })
 }
+
+function refreshBtnsCategories(categories, btn) {
+    categories.forEach((categorie) => {
+        categorie.classList.remove("selected");
+    })
+
+    btn.classList.add("selected");
+}
+
 
 function handleAddPicture() {
 
@@ -146,26 +142,20 @@ function editmodalHandler() {
     const span = document.getElementsByClassName("close-edit")[0];
 
     // When the user clicks on the button, open the modal
-    btns.forEach(btn => btn.onclick = function () {
-        modal.style.display = "block";
-        displayWorksInModal();
-        handleDeleteWork();
-        handleAddPicture();
-
+    btns.forEach(btn => {
+        btn.addEventListener("click", () => {
+            modal.style.display = "block";
+            displayWorksInModal();
+            handleDeleteWork();
+            handleAddPicture();
+        })
     })
 
     // When the user clicks on <span> (x), close the modal
-    span.onclick = function () {
+    span.addEventListener("click", () => {
         modal.style.display = "none";
         cleanDisplayWorksInModal();
-    }
-
-    // When the user clicks anywhere outside of the modal, close it
-    window.onclick = function (event) {
-        if (event.target == modal) {
-            modal.style.display = "none";
-        }
-    }
+    })
 }
 
 
@@ -217,33 +207,35 @@ function addModalHandler() {
         myImagePreview.style.display = "none";
         myImageInput.style.display = "flex";
     }
-
-    // When the user clicks anywhere outside of the modal, close it
-    window.onclick = function (event) {
-        if (event.target == modal) {
-            modal.style.display = "none";
-        }
-    }
 }
 
 function handleAddWorkForm() {
     document.forms["add_form"].onsubmit = async function (e) {
         e.preventDefault();
 
+        const errorsContainer = document.querySelector(".errors-messages");
+
         const title = document.querySelector('input[name="title"]').value;
         const category = document.querySelector('select[name="category"]').value;
-        const image = document.querySelector('input[name="image"]');
+        const image = document.querySelector('input[name="image"]').files[0];
+
+        errorsContainer.textContent = "";
+
+        if (title !== "" || category !== "" || !image) {
+            errorsContainer.textContent = "Veuillez remplir tous les champs";
+            return;
+        }
 
         const formData = new FormData();
         formData.append("title", title);
         formData.append("category", category);
-        formData.append("image", image.files[0]);
+        formData.append("image", image);
 
         console.log(formData);
 
         const userToken = JSON.parse(localStorage.getItem("user_login"));
 
-        if (userToken === null || userToken == undefined) return;
+        if (!userToken) return;
 
         console.log("options", {
             method: "POST",
@@ -267,8 +259,10 @@ function handleAddWorkForm() {
     }
 }
 
-function displayEditBtn() {}
 
+/**
+ * 
+ */
 async function fetchWorks() {
     const response = await fetch('http://localhost:5678/api/works');
     const works = await response.json();
@@ -292,7 +286,6 @@ function displayCategories() {
 
 }
 
-
 async function fetchCategories() {
     const response = await fetch('http://localhost:5678/api/categories');
     const categories = await response.json();
@@ -302,10 +295,6 @@ async function fetchCategories() {
     }, ...categories];
     displayCategories();
     addClickEventToCategories();
-
-}
-
-function filterWorks() {
 
 }
 
@@ -342,9 +331,6 @@ function handleImagePreview() {
             imgTag.src = URL.createObjectURL(file);
 
         }
-
-
-
     })
 
 }
@@ -358,7 +344,6 @@ function handleBackArrow() {
         addModal.style.display = "none";
         displayWorksInModal();
     })
-
 }
 
 let isLogged = false

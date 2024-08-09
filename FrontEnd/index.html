@@ -33,7 +33,9 @@
 			<ul class="nav-items">
 				<li class="nav-item"><a href="index.html">projets</a></li>
 				<li>contact</li>
-				<li><p id="loginButton">login</p></li>
+				<li>
+					<p id="loginButton">login</p>
+				</li>
 				<li><img src="./assets/icons/instagram.png" alt="Instagram"></li>
 			</ul>
 		</nav>
@@ -63,9 +65,7 @@
 					<span class="close close-edit">&times;</span>
 					<div class="modal-gallery">
 						<p class="title">Galerie photo</p>
-						<div class="modal-gallery-list">
-
-						</div>
+						<div class="modal-gallery-list"></div>
 						<hr>
 						<button id="add-picture-btn" class="btn">Ajouter une photo</button>
 					</div>
@@ -92,7 +92,7 @@
 
 						<p class="title">Ajout photo</p>
 
-						<dev class="input-section-image">
+						<div class="input-section-image">
 							<div class="input-section-image-preview">
 								<img src="" alt="preview image">
 							</div>
@@ -106,22 +106,23 @@
 
 								<label for="image" class="custom-file-upload">+ Ajouter photo</label>
 								<p>jpg, png : 4mo max</p>
-								<input type="file" name="image" id="image">
+								<input type="file" name="image" id="image" accept="image/*" required>
 							</div>
-						</dev>
-						<dev class="input-section">
+						</div>
+						<div class="input-section">
 							<label for="title">Titre</label>
-							<input type="text" name="title" id="title">
-						</dev>
-						<dev class="input-section">
+							<input type="text" name="title" id="title" required>
+						</div>
+						<div class="input-section">
 							<label for="category">Catégorie</label>
-							<select name="category" id="category">
+							<select name="category" id="category" required>
 								<option value="2">Apartements</option>
 								<option value="1">Objets</option>
 								<option value="3">Hotel & restaurants</option>
 							</select>
-						</dev>
+						</div>
 						<hr>
+						<div class="errors-messages"></div>
 
 						<button class="btn" type="submit">Valider</button>
 
