@@ -11,13 +11,13 @@ let validImage = false;
 
 
 // affiche la liste des travaux par catégories
-function displayWorks() { 
+function displayWorks() {
 
     const gallery = document.querySelector('.gallery'); //selectionne un élément DOM et réinitialise son contenu (assure que la galerie est vide avant ajout)
     gallery.innerHTML = "";
 
 
-        // filtre les travaux en vérifiant qu'ils appartiennent à une catégorie selectionnée
+    // filtre les travaux en vérifiant qu'ils appartiennent à une catégorie selectionnée
     let myArrayFiltered = stateWorks.filter((work) => {
         return selectedCategories.some((cat) => {
             return cat.id === work.category.id
@@ -47,7 +47,7 @@ function cleanDisplayWorksInModal() {
 
 
 //gestionnaire d'evenement permettant de manipuler une fenêtre de modal dans une page web
-function displayWorksInModal() { 
+function displayWorksInModal() {
     const gallery = document.querySelector('.modal-gallery-list'); //affiche le modal à afficher
 
     stateWorks.forEach(work => { // inclus une icône de suppression 
@@ -66,7 +66,7 @@ function displayWorksInModal() {
 
 
 // ajoute un gestionnaire d'evenements à tous les boutons de supressions
-async function handleDeleteWork() { 
+async function handleDeleteWork() {
     const deleteWorkBtns = document.querySelectorAll(".delete-work");
     deleteWorkBtns.forEach(btn => {
         btn.addEventListener("click", handleDeleteWorkClick);
@@ -105,7 +105,7 @@ async function handleDeleteWorkClick(e) {
 
 // gère l'interaction de l'utilisateur avec les catégories
 function addClickEventToCategories() {
-    categoriesElements = document.querySelectorAll(".categorie"); 
+    categoriesElements = document.querySelectorAll(".categorie");
     categoriesElements.forEach(element => {
         element.addEventListener('click', (event) => {
             refreshBtnsCategories(categoriesElements, element);
@@ -141,9 +141,23 @@ function handleAddPicture() {
         console.log("we clicked add picture")
         const editModal = document.getElementById("modal-edit");
         const addModal = document.getElementById("modal-add");
+
         editModal.style.display = "none";
         cleanDisplayWorksInModal();
+
         addModal.style.display = "block";
+        refreshCategoriesSelect();
+    })
+}
+
+function refreshCategoriesSelect() {
+    const select = document.querySelector('select[name="category"]');
+    select.innerHTML = "";
+
+    const categories = stateCategories.filter((categorie) => categorie.id !== -1);
+
+    categories.forEach((categorie) => {
+        select.innerHTML += `<option value="${categorie.id}">${categorie.name}</option>`;
     })
 }
 
@@ -177,7 +191,7 @@ function editmodalHandler() {
 function testBtnValid() {
     const addModal = document.getElementById("modal-add");
     const kbButtons = addModal.querySelector(".btn");
-    console.log(kbButtons);
+
     // si les variables sont toutes les deux valides : la couleur de fond change
     if (validImage && validTitle) kbButtons.style["background-color"] = "#1D6154";
     else kbButtons.style["background-color"] = "#A7A7A7";
@@ -199,10 +213,7 @@ function buttonValidateEnableChecker() {
         if (e.target.value != "") validTitle = true;
         else validTitle = false;
         testBtnValid();
-
-
     })
-
 }
 
 
@@ -227,7 +238,8 @@ function addModalHandler() {
 
 //gère la soumission d'un formulaire pour ajouter un nouveau travail (via une requête API)
 function handleAddWorkForm() {
-    document.forms["add_form"].onsubmit = async function (e) {
+    const form = document.querySelector("#add_form");
+    form.addEventListener('submit', async (e) => {
         e.preventDefault();
 
         // recupère et vérifie que les champs du formulaires sont remplis avant l'envoi au serveur
@@ -239,7 +251,7 @@ function handleAddWorkForm() {
 
         errorsContainer.textContent = "";
 
-        if (title !== "" || category !== "" || !image) {
+        if (title === "" || category === "" || !image) {
             errorsContainer.textContent = "Veuillez remplir tous les champs";
             return;
         }
@@ -250,22 +262,12 @@ function handleAddWorkForm() {
         formData.append("category", category);
         formData.append("image", image);
 
-        console.log(formData);
-
         // vérifie que le token de l'utilisateur est récupéré
         const userToken = JSON.parse(localStorage.getItem("user_login"));
 
-        if (!userToken) return;
+        if (!userToken) return; // verifie que le token de l'utilisateur existe
 
-        // envoi la requête au serveur
-        console.log("options", {
-            method: "POST",
-            body: formData,
-            headers: {
-                Authorization: `Bearer ${userToken.token}`,
-                'content-type': 'multipart/form-data'
-            }
-        })
+        // envoi une requête POST à l'API pour ajouter un travail
         const response = await fetch("http://localhost:5678/api/works", {
             method: "POST",
             body: formData,
@@ -274,10 +276,14 @@ function handleAddWorkForm() {
             }
         });
 
-
-        console.log(response);
-
-    }
+        form.reset();
+        resetImagePreview();
+        backToEdit();
+        await fetchWorks();
+        cleanDisplayWorksInModal();
+        displayWorksInModal();
+        handleDeleteWork();
+    });
 }
 
 
@@ -357,23 +363,30 @@ function handleImagePreview() {
             myImageInput.style.display = "none";
             const imgTag = myImagePreview.querySelector("img");
             imgTag.src = URL.createObjectURL(file);
-
         }
     })
+}
 
+function resetImagePreview() {
+    const myImagePreview = document.querySelector(".input-section-image-preview");
+    const myImageInput = document.querySelector(".input-section-image-input");
+    myImagePreview.style.display = "none";
+    myImageInput.style.display = "flex";
 }
 
 
 // gère le dynamisme de la flèche retour dans le modal add
 function handleBackArrow() {
     const backArrow = document.querySelector(".back-arrow");
-    backArrow.addEventListener("click", () => {
-        const editModal = document.getElementById("modal-edit");
-        const addModal = document.getElementById("modal-add");
-        editModal.style.display = "block";
-        addModal.style.display = "none";
-        displayWorksInModal();
-    })
+    backArrow.addEventListener("click", backToEdit);
+}
+
+function backToEdit() {
+    const editModal = document.getElementById("modal-edit");
+    const addModal = document.getElementById("modal-add");
+    editModal.style.display = "block";
+    addModal.style.display = "none";
+    displayWorksInModal();
 }
 
 let isLogged = false
@@ -417,7 +430,7 @@ function handleLoginText() {
 }
 
 
- // permet de mettre à jour l'état de connexion en vérifiant le token utilisateur
+// permet de mettre à jour l'état de connexion en vérifiant le token utilisateur
 function handleIsLogged() {
     const token = localStorage.getItem("user_login")
     isLogged = token ? true : false
