@@ -1,10 +1,11 @@
-// const seConnecterBtn = document.addEventListener("submit")
+// vérification si l'utilisateur est connecté
 document.addEventListener('DOMContentLoaded', () => {
     const session = localStorage.getItem("user_login");
     if (session != null && session != undefined) window.location.replace("http://localhost:5500/");
 });
 
 
+// gestionnaire d'évenements pour la soumission d'un formulaire de connexion à un serveur
 document.forms["login_form"].onsubmit = async function (e) {
     e.preventDefault();
     const email = document.getElementById("email").value;
@@ -13,6 +14,7 @@ document.forms["login_form"].onsubmit = async function (e) {
         password: password,
         email: email
     }
+    // prépare la requête HTTP
     const options = {
         method: 'POST', // HTTP method
         headers: {
@@ -22,6 +24,7 @@ document.forms["login_form"].onsubmit = async function (e) {
     };
 
 
+    // permet l'envoi des informations de connexion au serveur + la gestion de la réponse 
     const response = await fetch('http://localhost:5678/api/users/login', options);
     if (response.status === 200) {
         errorMessage(false);
@@ -29,16 +32,18 @@ document.forms["login_form"].onsubmit = async function (e) {
         localStorage.setItem("user_login", JSON.stringify(responseData));
         window.location.replace("http://localhost:5500/");
     } else {
-        errorMessage(true);
+        errorMessage(true); // gere l'affichage d'un message d'erreur en cas d'echec de connexion
     }
 
 }
 
-function errorMessage(show){
-    if(show === true){
+
+// gère la visibilité  du message d'erreur (en fonction du paramètre show)
+function errorMessage(show) {
+    if (show === true) {
         const errorMsgElmnt = document.querySelector(".form-error");
         errorMsgElmnt.style.setProperty('display', 'block');
-    }else{
+    } else {
         const errorMsgElmnt = document.querySelector(".form-error");
         errorMsgElmnt.style.setProperty('display', 'none');
     }

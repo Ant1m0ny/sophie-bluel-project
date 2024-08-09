@@ -1,3 +1,4 @@
+// variables globales
 let stateWorks = [];
 let stateCategories = [];
 let selectedCategories = [{
@@ -8,25 +9,26 @@ let selectedCategories = [{
 let validTitle = false;
 let validImage = false;
 
-/**
- * display list of  filtered works by category
- */
-function displayWorks() {
 
-    const gallery = document.querySelector('.gallery');
+// affiche la liste des travaux par catégories
+function displayWorks() { 
+
+    const gallery = document.querySelector('.gallery'); //selectionne un élément DOM et réinitialise son contenu (assure que la galerie est vide avant ajout)
     gallery.innerHTML = "";
 
 
+        // filtre les travaux en vérifiant qu'ils appartiennent à une catégorie selectionnée
     let myArrayFiltered = stateWorks.filter((work) => {
         return selectedCategories.some((cat) => {
             return cat.id === work.category.id
         });
     });
-    if (selectedCategories.length === 1 && selectedCategories.find(cat => cat.id === -1)) { // activer seuelemnt si le tag Tous est selectionner
+    if (selectedCategories.length === 1 && selectedCategories.find(cat => cat.id === -1)) { // activer seulemrnt si le tag Tous est selectionné
         myArrayFiltered = stateWorks;
     };
 
 
+    // filtre tous les travaux ici + ajoute du HTML à la galerie
     myArrayFiltered.forEach(work => {
         gallery.innerHTML += `
         <figure>
@@ -36,15 +38,19 @@ function displayWorks() {
     })
 }
 
+
+// réinitialise / nettoie l'affichage du modal en vidant le contenu HTML
 function cleanDisplayWorksInModal() {
-    const gallery = document.querySelector('.modal-gallery-list');
+    const gallery = document.querySelector('.modal-gallery-list'); // represente la galerie des travaux à afficher dans le modal
     gallery.innerHTML = "";
 }
 
-function displayWorksInModal() {
-    const gallery = document.querySelector('.modal-gallery-list');
 
-    stateWorks.forEach(work => {
+//gestionnaire d'evenement permettant de manipuler une fenêtre de modal dans une page web
+function displayWorksInModal() { 
+    const gallery = document.querySelector('.modal-gallery-list'); //affiche le modal à afficher
+
+    stateWorks.forEach(work => { // inclus une icône de suppression 
         gallery.innerHTML += `
         <div class="figure-modal">
             <span class="delete-work" id="${work.id}">
@@ -59,20 +65,23 @@ function displayWorksInModal() {
 }
 
 
-async function handleDeleteWork() {
+// ajoute un gestionnaire d'evenements à tous les boutons de supressions
+async function handleDeleteWork() { 
     const deleteWorkBtns = document.querySelectorAll(".delete-work");
     deleteWorkBtns.forEach(btn => {
         btn.addEventListener("click", handleDeleteWorkClick);
     });
 }
 
+
+//gere la supression d'un travail quand l'utilitsateur clique sur un bouton de suppression (via un gestionnaire d'evenements)
 async function handleDeleteWorkClick(e) {
     e.preventDefault();
     const userToken = JSON.parse(localStorage.getItem("user_login"));
 
-    if (!userToken) return;
+    if (!userToken) return; // verifie que le token de l'utilisateur existe
 
-    const options = {
+    const options = { //configure les options de la suppression
         method: 'DELETE',
         headers: {
             'Content-Type': 'application/json',
@@ -93,35 +102,41 @@ async function handleDeleteWorkClick(e) {
     }
 }
 
+
+// gère l'interaction de l'utilisateur avec les catégories
 function addClickEventToCategories() {
-    categoriesElements = document.querySelectorAll(".categorie");
+    categoriesElements = document.querySelectorAll(".categorie"); 
     categoriesElements.forEach(element => {
         element.addEventListener('click', (event) => {
             refreshBtnsCategories(categoriesElements, element);
 
+            // compare l'ID de chaque catégorie + les filtres
             selectedCategories = stateCategories.filter((categorie) => {
                 return categorie.id === parseInt(element.id);
             });
 
-            displayWorks();
+            displayWorks(); // met à jour l'affichage 
 
         })
     })
 }
 
+
+// gère la sélection des catégories d'un point de vue visuel pour l'utilisateur
 function refreshBtnsCategories(categories, btn) {
     categories.forEach((categorie) => {
-        categorie.classList.remove("selected");
+        categorie.classList.remove("selected"); // retire la classe selected à tous les boutons 
     })
 
-    btn.classList.add("selected");
+    btn.classList.add("selected"); // ajoute la classe selected au bouton sélectionné
 }
 
-
+// gere l'interaction de l'utilisateur quand il clique sur le bouton pour ajouter une image
 function handleAddPicture() {
 
-    const btn = document.getElementById("add-picture-btn");
+    const btn = document.getElementById("add-picture-btn"); //selectionne le DOM avec l'ID + stock la variable
 
+    // gestionnaire d'evenement ajouté au bouton
     btn.addEventListener('click', () => {
         console.log("we clicked add picture")
         const editModal = document.getElementById("modal-edit");
@@ -132,16 +147,15 @@ function handleAddPicture() {
     })
 }
 
+
+// gestionnaire d'evenement qui permet la manipulation du modal
 function editmodalHandler() {
-    // Get the modal
-    const modal = document.getElementById("modal-edit");
+    const modal = document.getElementById("modal-edit"); //recupere le modal
 
-    // Get the button that opens the modal
-    const btns = document.querySelectorAll(".edit");
-    // Get the <span> element that closes the modal
-    const span = document.getElementsByClassName("close-edit")[0];
+    const btns = document.querySelectorAll(".edit"); // recupere le bouton qui ouvre le modal
+    const span = document.getElementsByClassName("close-edit")[0]; // recupere le span qui ferme le modal
 
-    // When the user clicks on the button, open the modal
+    // ouvre le modal quand l'utilisateur clique sur le modal
     btns.forEach(btn => {
         btn.addEventListener("click", () => {
             modal.style.display = "block";
@@ -151,7 +165,7 @@ function editmodalHandler() {
         })
     })
 
-    // When the user clicks on <span> (x), close the modal
+    // quand l'utilisateur clique sur le span (x) cela ferme le modal
     span.addEventListener("click", () => {
         modal.style.display = "none";
         cleanDisplayWorksInModal();
@@ -159,16 +173,20 @@ function editmodalHandler() {
 }
 
 
+// verifie les conditions de validité du bouton
 function testBtnValid() {
     const addModal = document.getElementById("modal-add");
     const kbButtons = addModal.querySelector(".btn");
     console.log(kbButtons);
+    // si les variables sont toutes les deux valides : la couleur de fond change
     if (validImage && validTitle) kbButtons.style["background-color"] = "#1D6154";
     else kbButtons.style["background-color"] = "#A7A7A7";
 }
 
+// gere la validation d'un formulaire + determine si le bouton doit etre activé ou désactivé
 function buttonValidateEnableChecker() {
 
+    // recupère l'evenement
     const title = document.querySelector('input[name="title"]');
     const image = document.querySelector('input[name="image"]');
     image.addEventListener("change", (e) => {
@@ -185,23 +203,20 @@ function buttonValidateEnableChecker() {
 
     })
 
-
 }
 
+
+// gère l'ouverture et la fermeture d'une fenêtre modal 
 function addModalHandler() {
-    // Get the modal
+    // recupère le modal
     const modal = document.getElementById("modal-add");
 
-    // Get the button that opens the modal
-
-    // Get the <span> element that closes the modal
+    // recupère l'element span qui ferme le modal
     const span = document.getElementsByClassName("close-add")[0];
     const myImagePreview = document.querySelector(".input-section-image-preview");
     const myImageInput = document.querySelector(".input-section-image-input");
 
-
-
-    // When the user clicks on <span> (x), close the modal
+    // ferme le modal quand l'utilisateur clique sur le span (x)
     span.onclick = function () {
         modal.style.display = "none";
         myImagePreview.style.display = "none";
@@ -209,10 +224,13 @@ function addModalHandler() {
     }
 }
 
+
+//gère la soumission d'un formulaire pour ajouter un nouveau travail (via une requête API)
 function handleAddWorkForm() {
     document.forms["add_form"].onsubmit = async function (e) {
         e.preventDefault();
 
+        // recupère et vérifie que les champs du formulaires sont remplis avant l'envoi au serveur
         const errorsContainer = document.querySelector(".errors-messages");
 
         const title = document.querySelector('input[name="title"]').value;
@@ -226,6 +244,7 @@ function handleAddWorkForm() {
             return;
         }
 
+        // crée une nouvelle manifestation de formData en ajoutant les valeurs récupérées
         const formData = new FormData();
         formData.append("title", title);
         formData.append("category", category);
@@ -233,10 +252,12 @@ function handleAddWorkForm() {
 
         console.log(formData);
 
+        // vérifie que le token de l'utilisateur est récupéré
         const userToken = JSON.parse(localStorage.getItem("user_login"));
 
         if (!userToken) return;
 
+        // envoi la requête au serveur
         console.log("options", {
             method: "POST",
             body: formData,
@@ -260,9 +281,7 @@ function handleAddWorkForm() {
 }
 
 
-/**
- * 
- */
+// permet d'obtenir les données des travaux via l'API
 async function fetchWorks() {
     const response = await fetch('http://localhost:5678/api/works');
     const works = await response.json();
@@ -270,13 +289,15 @@ async function fetchWorks() {
     displayWorks();
 }
 
+
+// affiche une liste de catégorie dans l'interface de l'utilisateur
 function displayCategories() {
     const userToken = localStorage.getItem("user_login");
 
-    if (userToken != null && userToken != undefined) return;
+    if (userToken != null && userToken != undefined) return; // verifie le token de l'utilisateur
 
     const categoriesElement = document.querySelector('.categories');
-    stateCategories.forEach((categorie, index) => {
+    stateCategories.forEach((categorie, index) => { //affiche les catégories
         let className = "categorie";
         if (index === 0) className = className + " " + "selected";
         categoriesElement.innerHTML += `<div id=${categorie.id} class="${className}">
@@ -286,6 +307,8 @@ function displayCategories() {
 
 }
 
+
+//envoi une requête à l'API  pour récupérer des données
 async function fetchCategories() {
     const response = await fetch('http://localhost:5678/api/categories');
     const categories = await response.json();
@@ -298,6 +321,8 @@ async function fetchCategories() {
 
 }
 
+
+// permet d'ajuster l'interface de l'utilisateur pour afficher le top bar quand il est connecté
 function cleanUI() {
     const userToken = localStorage.getItem("user_login");
     const topBar = document.querySelector(".top-bar-edit");
@@ -316,11 +341,14 @@ function cleanUI() {
     }
 }
 
+
+// gère la prévisualisation d'une image quand l'utilisateur sélectionne un fichier image
 function handleImagePreview() {
 
     const image = document.querySelector('input[name="image"]');
-    image.addEventListener("change", (e) => {
+    image.addEventListener("change", (e) => { // detecte quand l'utilisateur selectionne un fichier image
 
+        // permet à l'utilisateur de voir un apperçu de l'image + de cacher les champs de téléchargements
         const [file] = image.files
         if (file) {
             const myImagePreview = document.querySelector(".input-section-image-preview");
@@ -335,6 +363,8 @@ function handleImagePreview() {
 
 }
 
+
+// gère le dynamisme de la flèche retour dans le modal add
 function handleBackArrow() {
     const backArrow = document.querySelector(".back-arrow");
     backArrow.addEventListener("click", () => {
@@ -348,6 +378,7 @@ function handleBackArrow() {
 
 let isLogged = false
 
+// gere l'état de connexion de l'utilisateur et son interface 
 function handleLogin() {
     const loginBtn = document.querySelector("#loginButton")
     loginBtn.addEventListener("click", () => {
@@ -378,17 +409,22 @@ function handleLogin() {
     })
 }
 
+
+// permet de mettre à jour le texte affiché en fonction de l'état de connexion
 function handleLoginText() {
     const loginBtn = document.querySelector("#loginButton")
     loginBtn.innerHTML = isLogged ? "logout" : "login"
 }
 
+
+ // permet de mettre à jour l'état de connexion en vérifiant le token utilisateur
 function handleIsLogged() {
     const token = localStorage.getItem("user_login")
     isLogged = token ? true : false
 }
 
 
+// gestionnaires d'évenements qui s'appliquent pour exécuter les différentes fonctions
 document.addEventListener('DOMContentLoaded', async () => {
     cleanUI();
     await fetchCategories();
